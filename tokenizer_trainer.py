@@ -1,5 +1,5 @@
 import tokenizers as tok
-# import transformers as tr
+import transformers as tr
 
 
 # TODO Токенизатор
@@ -12,4 +12,14 @@ trainer = tok.trainers.BpeTrainer(special_tokens=["[PAD]"])  # * Создаем 
 tknzr.train(["dataset.txt"], trainer) # * Тренируем токенизатор на собранном датасете
 tknzr.enable_padding() # * Включаем механизм паддинга
 
-print(tknzr.encode("Кринженомикон, саламалейкум!").tokens)
+
+vocab = tknzr.get_vocab() # * Получаем словарь из обученного токенизатора
+hug_tokenizer = tr.PreTrainedTokenizerFast(tokenizer_object = tknzr) # * Переводим токенизатор в понятный трансформерам формат
+
+
+config = tr.GPT2Config(
+    vocab_size=len(vocab),
+    bos_token_id=hug_tokenizer.token_to_id("[CLS]"),
+    eos_token_id=hug_tokenizer.token_to_id("[EOS]"),
+)
+gpt = tr.GPT2LMHeadModel(config)
